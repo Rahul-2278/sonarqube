@@ -10,14 +10,11 @@ phases:
   build:
     commands:
       - pwd
-      - docker build -t 660061364911.dkr.ecr.ap-south-1.amazonaws.com/pryzm-ui:$CODEBUILD_BUILD_NUMBER .
+      - docker build -t 660061364911.dkr.ecr.ap-south-1.amazonaws.com/sonarqube-sample:$CODEBUILD_BUILD_NUMBER .
   post_build:
     commands:
-      - docker push 660061364911.dkr.ecr.ap-south-1.amazonaws.com/pryzm-ui:$CODEBUILD_BUILD_NUMBER
-      - aws eks update-kubeconfig --name pryzm-cluster
-      - kubectl get po -n pryzm
-      - sed "/image/ s/:1/:$CODEBUILD_BUILD_NUMBER/g" pryzm-ui.yaml > pryzm-ui-modified.yaml
-      - kubectl apply -f pryzm-ui-modified.yaml -n pryzm
+      - docker push 660061364911.dkr.ecr.ap-south-1.amazonaws.com/sonarqube-sample:$CODEBUILD_BUILD_NUMBER
+
 cache:
   paths:
     - '/root/.m2/**/*'
