@@ -1,0 +1,25 @@
+version: 0.2
+#comment        
+phases:
+  install:
+    runtime-versions:
+        java: corretto17     
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 660061364911.dkr.ecr.ap-south-1.amazonaws.com
+  build:
+    commands:
+      - pwd
+      - docker build -t 660061364911.dkr.ecr.ap-south-1.amazonaws.com/pryzm-ui:$CODEBUILD_BUILD_NUMBER .
+  post_build:
+    commands:
+      - docker push 660061364911.dkr.ecr.ap-south-1.amazonaws.com/pryzm-ui:$CODEBUILD_BUILD_NUMBER
+      - aws eks update-kubeconfig --name pryzm-cluster
+      - kubectl get po -n pryzm
+      - sed "/image/ s/:1/:$CODEBUILD_BUILD_NUMBER/g" pryzm-ui.yaml > pryzm-ui-modified.yaml
+      - kubectl apply -f pryzm-ui-modified.yaml -n pryzm
+cache:
+  paths:
+    - '/root/.m2/**/*'
+    - '/root/.npm/**/*'
+    - 'node_modules/**/*'
